@@ -1,4 +1,5 @@
-import { all } from '../../api/items';
+import Api from '../../api/items';
+
 
 // initial state
 const state = {
@@ -7,29 +8,23 @@ const state = {
 
 // getters
 const getters = {
-  getItems: store => (filter) => {
-    const items = store.all;
-
-    if (!filter) return items;
-
-    return items.filter(({ name, location, currency }) => {
-      const regex = new RegExp(`${filter}`, 'ig');
-      return regex.test(name) || regex.test(location) || regex.test(currency);
-    });
+  getItems(store) {
+    return store.all;
   },
-  getTotalCurrency(store) {
-    return store.all.reduce((accumulator, item) => (
-      accumulator + item.currency
-    ), 0);
-  },
+  getItemById: store => id => (
+    store.all.find(item => item.id === id)
+  ),
 };
 
 // actions
 const actions = {
-  requestItems({ commit }) {
-    all((err, items) => {
-      if (items) commit('setItems', items);
+  requestItems(store) {
+    Api.all((err, items) => {
+      if (items) store.commit('setItems', items);
     });
+  },
+  updateItem(store, item) {
+    store.commit('updateItem', item);
   },
 };
 
@@ -37,6 +32,13 @@ const actions = {
 const mutations = {
   setItems(store, items) {
     store.all = items; // eslint-disable-line
+  },
+  updateItem(store, item) {
+    const items = store.all;
+    const index = items.findIndex(i => i.id === item.id);
+    if (index !== -1) {
+      store.all[index] = Object.assign(items[index], item); // eslint-disable-line
+    }
   },
 };
 

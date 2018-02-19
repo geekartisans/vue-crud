@@ -1,4 +1,4 @@
-export const all = async (cb) => {
+const all = async (cb) => {
   try {
     const response = await fetch('/static/items.json');
     const result = await response.json();
